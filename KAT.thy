@@ -46,7 +46,7 @@ lemma t_t_var [simp]: "\<tau> (\<tau> x) = \<tau> x"
 
 lemma a_comm: "\<alpha> x \<cdot> \<alpha> y = \<alpha> y \<cdot> \<alpha> x"
   sorry
- 
+
 lemma a_idem [simp]: "\<alpha> x \<cdot> \<alpha> x = \<alpha> x"
   sorry
 
@@ -106,6 +106,7 @@ lemma at_shunt: "(\<alpha> x \<cdot> \<alpha> y \<le> \<alpha> z) = (\<alpha> x 
 
 end
 
+
 subsection \<open>Boolean Subalgebra of Tests\<close>
 
 typedef (overloaded) 'a test_alg = "{x::'a::kat. \<tau> x = x}"
@@ -146,7 +147,16 @@ end
 
 text \<open>Unfortunately, this theorem must be given outside of the context of the Kleene algebra with tests class.
 We can therefore not use its results within this context. This means in particular that theorems from
-Isabelle's boolean algebra component are not within scope within this context.\<close>
+Isabelle's boolean algebra component are not within scope of this context.\<close>
+
+text \<open>Are all subidenties tests? The following counterexample, obtained using nitpick, shows that this
+is not the case.\<close>
+
+lemma (in kat) "x \<le> 1 \<Longrightarrow> \<tau> x = x"
+  nitpick (* 3-element counterexample *)
+  oops
+
+
 
 subsection \<open>Properties Helpful for Propositional Hoare Logic\<close>
 
@@ -167,7 +177,6 @@ lemma pcorrect_if2_op: "\<tau> p \<cdot> x \<cdot> \<alpha> q = 0 \<Longrightarr
 
 lemma pcorrect_if3: "\<alpha> p \<cdot> x = \<alpha> p \<cdot> x \<cdot> \<alpha> q \<Longrightarrow> \<alpha> p \<cdot> x \<le> x \<cdot> \<alpha> q"
   sorry
-
 lemma pcorrect_if3_op: "\<alpha> p \<cdot> x \<cdot> \<alpha> q = x \<cdot> \<alpha> q \<Longrightarrow> x \<cdot> \<alpha> q \<le> \<alpha> p \<cdot>  x"
   sorry
 
@@ -186,6 +195,9 @@ lemma pcorrect_iff2_op: "(\<tau> p \<cdot> x \<cdot> \<alpha> q = 0) = (\<alpha>
 lemma pcorrect_op: "(\<alpha> p \<cdot> x \<le> x \<cdot> \<alpha> q) = (x \<cdot> \<tau> q \<le> \<tau> p \<cdot> x)"
   sorry
 
+lemma pcorrect: "(\<tau> p \<cdot> x \<le> x \<cdot> \<tau> q) = (x \<cdot> \<alpha> q \<le> \<alpha> p \<cdot> x)"
+  sorry
+
 subsection  \<open>Conditionals and while-Loops.\<close>
 
 definition cond :: "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a" ("if _ then _ else _ fi" [64,64,64] 63) where
@@ -198,6 +210,9 @@ definition while :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" ("while _ do _ od" [6
 subsection \<open>Program Equivalences and Transformations\<close>
 
 lemma while_rec: "while p do x od = if p then x \<cdot> (while p do x od) else 1 fi"
+  sorry
+
+lemma while_rec_least: "if p then x \<cdot> y else 1 fi = y \<Longrightarrow> while p do x od \<le> y"
   sorry
 
 lemma cond_merge_aux: "(\<tau> p \<cdot> x = x \<cdot> \<tau> p) = (\<alpha> p \<cdot> x = x \<cdot> \<alpha> p)"
@@ -213,6 +228,7 @@ lemma loop_denest: "while p do (x \<cdot> (while q do y od)) od = if p then (x \
 
 end
 
+
 subsection \<open>A Locale for KAT\<close>
 
 locale katloc =
@@ -223,15 +239,18 @@ locale katloc =
   and test_top: "\<iota> top = 1"
   and test_bot: "\<iota> bot = 0"
   and test_not: "\<iota> (- p) = ! (\<iota> p)" 
-  and test_iso_eq: "p \<le> q \<longleftrightarrow> \<iota> p \<le> \<iota> q"
+  and test_ord_emb: "\<iota> p \<le> \<iota> q \<Longrightarrow> p \<le> q"
 
 begin
 
+lemma test_iso: "p \<le> q \<Longrightarrow> \<iota> p \<le> \<iota> q"
+  by (metis order_def sup_absorb2 test_sup)
+
+lemma test_iso_eq: "p \<le> q \<longleftrightarrow> \<iota> p \<le> \<iota> q"
+  using test_iso test_ord_emb by blast
+
 lemma test_eq: "p = q \<longleftrightarrow> \<iota> p = \<iota> q"
   by (metis eq_iff test_iso_eq)
-
-lemma test_iso: "p \<le> q \<Longrightarrow> \<iota> p \<le> \<iota> q"
-  by (simp add: test_iso_eq)
 
 lemma test_meet_comm: "\<iota> p \<cdot> \<iota> q = \<iota> q \<cdot> \<iota> p"
   by (metis inf.commute test_inf)
@@ -250,6 +269,7 @@ lemma [simp]: "\<iota> p \<cdot> ! (\<iota> p) = 0"
 
 end
 
+
 subsection \<open>Relational and State Transformer Model\<close>
 
 definition rel_atest :: "'a rel \<Rightarrow> 'a rel" ("\<alpha>\<^sub>r") where 
@@ -264,15 +284,12 @@ definition sta_atest :: "'a sta \<Rightarrow> 'a sta" ("\<alpha>\<^sub>s") where
 lemma katest_iff: "y \<in> \<alpha>\<^sub>s f x \<longleftrightarrow> y \<in> \<eta> x \<and> \<not> y \<in> f x"
   unfolding sta_atest_def by simp
 
-declare katest_iff [sta_unfolds]
-
 interpretation sta_kat: kat "(+\<^sub>K)" "\<nu>" "\<eta>" "(\<circ>\<^sub>K)" "(\<sqsubseteq>)" "(\<sqsubset>)" kstar "\<alpha>\<^sub>s"
-  by unfold_locales (auto simp: sta_unfolds)
+  apply unfold_locales
+  unfolding sta_iff katest_iff eta_def kcomp_iff kadd_iff nsta_def by auto
 
 lemma r2s_atest: "\<S> (\<alpha>\<^sub>r R) = \<alpha>\<^sub>s (\<S> R)"
-  unfolding sta_unfolds s2r_def rel_atest_def 
-
-  by (metis ComplD ComplI IntE IntI r2s_iff  s2r_id) 
+  unfolding sta_iff r2s_iff katest_iff rel_atest_def eta_def by force
 
 lemma s2r_atest: "\<R> (\<alpha>\<^sub>s f) = \<alpha>\<^sub>r (\<R> f)"
   by (metis r2s2r_galois r2s_atest)
@@ -284,7 +301,7 @@ lemma p2r_test [simp]: "rel_kat.test \<lceil>P\<rceil>\<^sub>r = \<lceil>P\<rcei
   unfolding rel_kat.test_def by force
 
 lemma p2s_atest [simp]: "\<alpha>\<^sub>s \<lceil>P\<rceil>\<^sub>s = \<lceil>\<lambda>x. \<not> P x\<rceil>\<^sub>s"
-  unfolding  p2s_def s2p_def sta_atest_def fun_eq_iff by force
+  unfolding  p2s_def s2p_def sta_atest_def fun_eq_iff eta_def by simp
 
 lemma p2s_test [simp]: "sta_kat.test \<lceil>P\<rceil>\<^sub>s = \<lceil>P\<rceil>\<^sub>s"
   unfolding sta_kat.test_def by force

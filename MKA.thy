@@ -99,11 +99,14 @@ lemma d1_a [simp]: "do x \<cdot> x = x"
 lemma ad_one [simp]: "ad 1 = 0"
   by (metis ad_annil mult_1_right)
 
+lemma "do 0 = 0"
+  by (metis ad_one d1_a local.arka_op.range_op_def local.mult_1_right)
+
 lemma ad_zero [simp]: "ad 0 = 1"
   by (metis ad_one ad_compl1 add_0_right)
 
 lemma ad_compl2 [simp]: "ad x \<cdot> do x = 0"
-  by (metis antisym arka_op.ar_annil arka_op.ar_local_sub dom_op_def mult_1_left mult_isor zero_least)
+  by (metis order.antisym arka_op.ar_annil arka_op.ar_local_sub dom_op_def mult_1_left mult_isor zero_least)
 
 lemma ad_d: "(ad x \<cdot> y = 0) = (do x \<cdot> y = y)"
   by (metis ad_compl2 add_commute dom_op_def ad_compl1 add_0_left annil distr mult_1_left mult_assoc)
@@ -115,10 +118,10 @@ lemma a_idem [simp]: "ad x \<cdot> ad x = ad x"
   by (metis d1_a d_a_closed dom_op_def)
 
 lemma meet_ord: "(ad x \<le> ad y) = (ad x \<cdot> ad y = ad x)"
-  by (metis a_subid_aux d1_a d_a_closed dom_op_def antisym mult_1_right mult_isol)
+  by (metis a_subid_aux d1_a d_a_closed dom_op_def order.antisym mult_1_right mult_isol)
 
 lemma d_wloc: "(x \<cdot> y = 0) = (x \<cdot> do y = 0)"
-  by (metis a_subid_aux d1_a dom_op_def ad_annil ad_local_sub antisym mult_1_right mult_assoc)
+  by (metis a_subid_aux d1_a dom_op_def ad_annil ad_local_sub order.antisym mult_1_right mult_assoc)
 
 lemma gla: "(ad x \<cdot> y = 0) = (ad x \<le> ad y)"
   apply standard
@@ -126,7 +129,7 @@ lemma gla: "(ad x \<cdot> y = 0) = (ad x \<le> ad y)"
   by (metis ad_annil annir mult_assoc meet_ord)
 
 lemma a_local [simp]: "ad (x \<cdot> do y) = ad (x \<cdot> y)"
-  by (smt d_wloc gla ad_annil antisym mult_assoc)                                              
+  by (smt d_wloc gla ad_annil order.antisym mult_assoc)                                              
 
 lemma a_supdist: "ad (x + y) \<le> ad x"
   by (metis gla ad_annil add_0_right add_ubl distl order_def)
@@ -144,13 +147,13 @@ lemma llp: "(do y \<cdot> x = x) = (do x \<le> do y)"
   by (metis a_antitone ad_d d_a_closed dom_op_def gla)
 
 lemma a_comm: "ad x \<cdot> ad y = ad y \<cdot> ad x"
-  by (rule antisym) (metis a_local a_subid_aux d1_a d_a_closed d_iso dom_op_def eq_refl mult_1_right mult_iso)+
+  by (rule order.antisym) (metis a_local a_subid_aux d1_a d_a_closed d_iso dom_op_def eq_refl mult_1_right mult_iso)+
 
 lemma a_closed [simp]: "do (ad x \<cdot> ad y) = ad x \<cdot> ad y"
   by (smt a_comm a_idem a_subid_aux ad_zero d1_a d_a_closed d_iso dom_op_def mult_1_right mult_assoc meet_ord)
 
 lemma a_exp [simp]: "ad (ad x \<cdot> y) = do x + ad y"
-proof (rule antisym)
+proof (rule order.antisym)
   have a: "ad (ad x \<cdot> y) \<cdot> do y \<le> do x"
     by (smt a_closed a_comm a_local ad_compl2 gla dom_op_def mult_assoc)
   have "ad (ad x \<cdot> y) = ad (ad x \<cdot> y) \<cdot> do y + ad (ad x \<cdot> y) \<cdot> ad y"
@@ -169,9 +172,9 @@ lemma d1_sum_var: "x + y \<le> (do x + do y) \<cdot> (x + y)"
   by (simp add: add_commute add_iso add_ubl distl distr)
 
 lemma a_dual_add: "ad (x + y) = ad x \<cdot> ad y"
-  apply (rule antisym)
+  apply (rule order.antisym)
   apply (metis a_supdist add_commute  mult_isor meet_ord)
-  by (metis a_closed a_de_morgan a_exp a_subid_aux d1_sum_var antisym  order_def)
+  by (metis a_closed a_de_morgan a_exp a_subid_aux d1_sum_var order.antisym  order_def)
 
 lemma d_add: "do (x + y) = do x + do y"
   by (simp add: a_dual_add dom_op_def)
@@ -240,7 +243,8 @@ lemma pcorrect_var2: "(do p \<cdot> x \<le> x \<cdot> do q) = (x \<cdot> ad q \<
   sorry
 
 lemma ad_star [simp]: "ad (x\<^sup>\<star>) = 0"
-  by (metis a_dual_add ad_one annil star_unfoldl_eq)
+  sorry
+
 
 end
 
@@ -353,21 +357,21 @@ lemma fbox_star_inductl: "do y \<le> do z \<cdot> fbox x y \<Longrightarrow> do 
 
 end
 
-subsection \<open>Coherence, Galois Connections and Conjugations\<close>
+subsection \<open>Compatibility, Galois Connections and Conjugations\<close>
 
 context modal_kleene_algebra
 begin
 
-lemma dr_coh_aux1 [simp]: "ar x \<cdot> do (ra x) = 0"
+lemma dr_comp_aux1 [simp]: "ar x \<cdot> do (ra x) = 0"
   sorry
 
-lemma dr_coh_aux2 [simp]: "ra x \<cdot> do (ra x) \<cdot> ar x = 0"
+lemma dr_comp_aux2 [simp]: "ra x \<cdot> do (ra x) \<cdot> ar x = 0"
   sorry
 
-lemma dr_coh [simp]: "do (ra x) = ra x"
+lemma dr_comp [simp]: "do (ra x) = ra x"
   sorry
 
-lemma rd_coh [simp]: "ra (do x) = do x"
+lemma rd_comp [simp]: "ra (do x) = do x"
   sorry
 
 lemma do_ra: "(do x = x) = (ra x = x)"
@@ -384,6 +388,7 @@ lemma bdia_fbox_galois:
   shows "(bdia x p \<le> q) = (p \<le> fbox x q)"
   sorry
 
+
 lemma fdia_bbox_galois: 
   assumes "do p = p" and "do q = q"
   shows "(fdia x p \<le> q) = (p \<le> bbox x q)"
@@ -393,6 +398,7 @@ lemma dia_conjugation:
   assumes "do p = p" and "do q = q"
   shows "(p \<cdot> fdia x q = 0) = (bdia x p \<cdot> q = 0)"
   sorry
+
 
 lemma box_conjugation: 
   assumes "do p = p" and "do q = q"
@@ -429,6 +435,7 @@ lemma fbox_condr: "ad p \<cdot> fbox (if p then x else y fi) q = ad p \<cdot> fb
 
 lemma fbox_cond_var: "fbox (if p then x else y fi) q = (do p \<cdot> fbox x q) + (ad p \<cdot> fbox y q)"
   sorry
+
 lemma fbox_while: 
   assumes "do p \<cdot> do t \<le> fbox x p"
   shows "do p \<le> fbox (while t do x od) (do p \<cdot> ad t)"
@@ -444,8 +451,9 @@ lemma fbox_while_inv:
   assumes "do p \<le> do i"
   and "do i \<cdot> ad t \<le> do q"
   and "do i \<cdot> do t \<le> fbox x i"
-  shows "do p \<le> fbox (while t inv i do x od) q"
+shows "do p \<le> fbox (while t inv i do x od) q"
   sorry
+
 end
 
 
@@ -455,7 +463,7 @@ definition rel_ad :: "'a rel \<Rightarrow> 'a rel" ("ad\<^sub>r") where
   "rel_ad R = {(x,x) | x. \<not>(\<exists>y. (x,y) \<in> R)}" 
 
 interpretation rel_aka: antidomain_kleene_algebra "(\<union>)" "{}" Id "(;)" "(\<subseteq>)" "(\<subset>)" rtrancl "ad\<^sub>r"
-  sorry
+  by unfold_locales (auto simp: rel_ad_def)
 
 definition sta_ad :: "'a sta \<Rightarrow> 'a sta" ("ad\<^sub>s")where
   "sta_ad f x = (if f x = {} then {x} else {})"
@@ -558,19 +566,8 @@ lemma rfbox_while_inv:
   and "\<forall>s. I s \<longrightarrow> \<not> T s \<longrightarrow> Q s"
   and "\<forall>s. I s \<longrightarrow> T s \<longrightarrow> rfbox R I s"
   shows "\<forall>s. P s \<longrightarrow> rfbox (rwhile T inv I do R od) Q s" 
-proof-
-  have a: "\<lceil>P\<rceil>\<^sub>r \<subseteq> \<lceil>I\<rceil>\<^sub>r"
-    using assms by simp
-  have b: "\<lceil>I\<rceil>\<^sub>r ; ad\<^sub>r \<lceil>T\<rceil>\<^sub>r \<subseteq> \<lceil>Q\<rceil>\<^sub>r"
-    by (simp add: assms(2))
-  have c: "\<lceil>I\<rceil>\<^sub>r ; \<lceil>T\<rceil>\<^sub>r \<subseteq> rel_aka.fbox R \<lceil>I\<rceil>\<^sub>r"
-    by (smt assms(3) p2r_comp p2r_imp rfbox_p2r2p)
-  hence "rel_aka.dom_op \<lceil>P\<rceil>\<^sub>r \<subseteq> rel_aka.fbox (rel_aka.while_inv \<lceil>T\<rceil>\<^sub>r \<lceil>I\<rceil>\<^sub>r R) \<lceil>Q\<rceil>\<^sub>r"
-    apply (intro rel_aka.fbox_while_inv)
-    using a b by simp_all
-  thus ?thesis
-    by (smt p2r_imp rel_dom_pred rfbox_p2r2p)
-qed
+  sorry
+
 
 lemma sfbox_while_inv: 
   assumes "\<forall>s. P s \<longrightarrow> I s"
@@ -593,20 +590,21 @@ lemma sfbox_while_inv_break:
   shows "\<forall>s. P s \<longrightarrow> sfbox (g \<circ>\<^sub>K (swhile T inv I do f od)) Q s"
   sorry
 
+
 subsection \<open>Store and Assignment Semantics\<close>
 
 text \<open>We reuse the store from KAT\<close>
 
-lemma mka_rel_assign [simp]: "rel_aka.fbox (v :=\<^sub>r e) \<lceil>Q\<rceil>\<^sub>r = \<lceil>\<lambda>s. Q (set v e s)\<rceil>\<^sub>r"
+lemma mka_rel_assign [simp]: "rel_aka.fbox (v :=\<^sub>r e) \<lceil>Q\<rceil>\<^sub>r = \<lceil>Q \<circ> (set v e)\<rceil>\<^sub>r"
   sorry
 
-lemma mka_sta_assign [simp]: "sta_aka.fbox (v :=\<^sub>s e) \<lceil>Q\<rceil>\<^sub>s = \<lceil>\<lambda>s. Q (set v e s)\<rceil>\<^sub>s"
+lemma mka_sta_assign [simp]: "sta_aka.fbox (v :=\<^sub>s e) \<lceil>Q\<rceil>\<^sub>s = \<lceil>Q \<circ> (set v e)\<rceil>\<^sub>s"
   sorry
 
-lemma rfbox_assign [simp]: "rfbox (v :=\<^sub>r e) Q s = Q (set v e s)"
+lemma rfbox_assign [simp]: "rfbox (v :=\<^sub>r e) Q  = Q \<circ> (set v e)"
   sorry
 
-lemma sfbox_assign [simp]: "sfbox (v :=\<^sub>s e) Q s = Q (set v e s)"
+lemma sfbox_assign [simp]: "sfbox (v :=\<^sub>s e) Q  = Q \<circ> (set v e)"
   sorry
 
 subsection \<open>Examples\<close>

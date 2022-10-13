@@ -14,22 +14,22 @@ subsection \<open>Assignment Rules\<close>
 lemma rH_assign_iff [simp]: "H\<^sub>r P (v :=\<^sub>r e) Q = (\<forall>s. P s \<longrightarrow> Q (set v e s))"
   sorry
 
-lemma rH_assign: "H\<^sub>r (\<lambda>s. P (set v e s)) (v :=\<^sub>r e) P"
+lemma rH_assign: "H\<^sub>r (P \<circ> (set v e)) (v :=\<^sub>r e) P"
   sorry
 
-lemma rH_assign_floyd: "H\<^sub>r P (v :=\<^sub>r e) (\<lambda>s. \<exists>w. s v = e (fup v w s) \<and> P (fup v w s))"
+lemma rH_assign_floyd: "H\<^sub>r P (v :=\<^sub>r e) (\<lambda>s. \<exists>w. s v = e (set v w s) \<and> P (set v w s))"
 proof-
   {fix s
   assume "P s"
   hence "e s = e (fup v (s v) s) \<and> P (fup v (s v) s)"
     by simp
-  hence "\<exists>w. e s = e (fup v w s) \<and> P (fup v w s)"
-    by blast
-  hence "\<exists>w. e s = e (fup v w (set v e s)) \<and> P (fup v w (set v e s))"
+  hence "\<exists>w. e s = e (set v w s) \<and> P (set v w s)"
+    by meson
+  hence "\<exists>w. e s = e (set v w (set v e s)) \<and> P (set v w (set v e s))"
+    by auto
+  hence "\<exists>w. set v e s v = e (set v w (set v e s)) \<and> P (set v w (set v e s))"  
     by simp
-  hence "\<exists>w. set v e s v = e (fup v w (set v e s)) \<and> P (fup v w (set v e s))"  
-    by simp
-  hence "(\<lambda>s. \<exists>w. s v = e (fup v w s) \<and> P (fup v w s)) (set v e s)" 
+  hence "(\<lambda>s. \<exists>w. s v = e (set v w s) \<and> P (set v w s)) (set v e s)" 
     by simp}
   thus ?thesis
     unfolding rH_assign_iff by simp
@@ -43,9 +43,8 @@ text \<open>Next we consider state transformers.\<close>
 lemma sH_assign_iff [simp]: "H\<^sub>s P (v :=\<^sub>s e) Q = (\<forall>s. P s \<longrightarrow> Q (set v e s))"
   sorry
 
-lemma sH_assign: "H\<^sub>s (\<lambda>s. P (set v e s)) (v :=\<^sub>s e) P"
+lemma sH_assign: "H\<^sub>s (P \<circ> (set v e)) (v :=\<^sub>s e) P"
   sorry
-
 
 lemma sH_assign_floyd: "H\<^sub>s P (v :=\<^sub>s e) (\<lambda>s. \<exists>w::'a store \<Rightarrow> 'a. s v = e (set v w s) \<and> P (set v w s))"
   sorry
@@ -96,7 +95,6 @@ lemma svarible_swap:
    POST (\<lambda>s. s ''x'' = n \<and> s ''y'' = m)"
   sorry
 
-
 lemma rmaximum:  
   "rPRE (\<lambda>s::int store. True)
    (rif (\<lambda>s. s ''x'' \<ge> s ''y'') 
@@ -128,7 +126,6 @@ lemma rinteger_division:
      od)
    POST (\<lambda>s. x = s q * y + s r \<and> 0 \<le> s r \<and> s r < y)"
   sorry
-
 
 lemma sinteger_division: 
   assumes "q = ''q''" and "r = ''r''"

@@ -17,14 +17,13 @@ begin
 lemma cond_iso: 
   assumes "x \<le> x'"
   and "y \<le> y'"
-  shows "if p then x else y fi \<le> if p then x' else y' fi"
+shows "if p then x else y fi \<le> if p then x' else y' fi"
   sorry
 
 lemma while_iso: 
   assumes "x \<le> y"
   shows "while p do x od \<le> while p do y od"
   sorry
-
 end
 
 subsection \<open>Definition of refinement KAT\<close>
@@ -46,7 +45,6 @@ lemma R2: "Ho p x q \<Longrightarrow> x \<le> Re p q"
 lemma R_demmod: "(x \<le> Re p q) = (\<tau> p \<cdot> x \<le> x \<cdot> \<tau> q)"
   sorry
 
-
 subsection \<open>Propositional Refinement Calculus\<close>
 
 lemma R_skip: "1 \<le> Re p p"
@@ -58,7 +56,6 @@ lemma R_cons:
   shows "Re p' q' \<le> Re p q"
   sorry
 
-
 lemma R_seq: "Re p r \<cdot> Re r q \<le> Re p q"
   sorry
 
@@ -69,20 +66,13 @@ lemma R_while: "while q do Re (\<tau> p \<cdot> \<tau> q) p od \<le> Re p (\<tau
   sorry
 
 lemma R_zero_one: "x \<le> Re 0 1"
-proof -
-  have "Ho 0 x 1"
-    by (metis Ho_def annil mult_1_right test_def test_mult_comp test_one zero_least)
-  thus ?thesis
-    by (rule R2)
-qed
+  sorry
 
 lemma R_one_zero: "Re 1 0 = 0"
-proof -
-  have "Ho 1 (Re 1 0) 0"
-    by (simp add: R1)
-  thus ?thesis
-    by (metis Ho_def mult_1_left mult_1_right pcorrect_if1 t_a_var test_mult_comp test_one)
-qed
+  sorry
+
+lemma R_while_inv: "\<tau> p \<le> \<tau> i \<Longrightarrow>  \<alpha> t \<cdot> \<tau> i \<le> \<tau> q \<Longrightarrow> while t do Re (\<tau> t \<cdot> \<tau> i) i od \<le> Re p q"
+  sorry
 
 end
 
@@ -187,7 +177,7 @@ lemma sR_skip: "\<eta> \<sqsubseteq> R\<^sub>s P Q = (\<forall>s. P s \<longrigh
 
 lemma sR_cond: "sif T then R\<^sub>s (\<lambda>s. P s \<and> T s) Q else R\<^sub>s (\<lambda>s. P s \<and> \<not>T s) Q fi \<sqsubseteq> R\<^sub>s P Q"
   sorry
- 
+
 lemma sR_cond_var: 
   assumes "f \<sqsubseteq> R\<^sub>s (\<lambda>s. P s \<and> T s) Q"
   and "g \<sqsubseteq> R\<^sub>s (\<lambda>s. P s \<and> \<not>T s) Q"
@@ -201,6 +191,7 @@ lemma sR_while_var:
   assumes "f \<sqsubseteq> R\<^sub>s (\<lambda>s. P s \<and> Q s) P"
   shows "swhile Q do f od \<sqsubseteq> R\<^sub>s P (\<lambda>s. P s \<and> \<not> Q s)"
   sorry
+
 
 subsection \<open>Assignment Laws\<close>
 
@@ -252,7 +243,7 @@ lemma var_swap_ref3:
    \<supseteq> (''y'' :=\<^sub>r (\<lambda>s. s ''z'')); R\<^sub>r (\<lambda>s. s ''x'' = b \<and> s ''y'' = a) (\<lambda>s. s ''x'' = b \<and> s ''y'' = a)" 
   sorry
 
-lemma var_swap_ref_var: 
+lemma var_swap_ref: 
   "R\<^sub>r (\<lambda>s. s ''x'' = a \<and> s ''y'' = b) (\<lambda>s. s ''x'' = b \<and> s ''y'' = a)
    \<supseteq> (''z'' :=\<^sub>r (\<lambda>s. s ''x'')) ; (''x'' :=\<^sub>r (\<lambda>s. s ''y'')) ; (''y'' :=\<^sub>r (\<lambda>s. s ''z''))"
   sorry
@@ -262,8 +253,7 @@ text \<open>Maximum\<close>
 lemma max1: 
   "R\<^sub>r (\<lambda>s::int store. s ''x'' \<ge> s ''y'') (\<lambda>s. s ''z'' = max (s ''x'') (s ''y''))
    \<supseteq> R\<^sub>r (\<lambda>s. s ''x'' \<ge> s ''y'') (\<lambda>s. s ''y'' \<le> s ''x'') ; (''z'' :=\<^sub>r (\<lambda>s. s ''x''))"
-  sorry
-
+sorry
 lemma max11: 
   "R\<^sub>r (\<lambda>s. s ''x'' \<ge> s ''y'') (\<lambda>s. s ''y'' \<le> s ''x'') ; (''z'' :=\<^sub>r (\<lambda>s. s ''x''))
   \<supseteq> ''z'' :=\<^sub>r (\<lambda>s. s ''x'')"
@@ -272,12 +262,10 @@ lemma max2:
   "R\<^sub>r (\<lambda>s::int store. s ''x'' < s ''y'') (\<lambda>s. s ''z'' = max (s ''x'') (s ''y''))
    \<supseteq> R\<^sub>r (\<lambda>s. s ''x'' < s ''y'') (\<lambda>s. s ''x'' < s ''y'') ; (''z'' :=\<^sub>r (\<lambda>s. s ''y''))"
   sorry
-
 lemma max21: 
   "R\<^sub>r (\<lambda>s. s ''x'' < s ''y'') (\<lambda>s. s ''x'' < s ''y'') ; (''z'' :=\<^sub>r (\<lambda>s. s ''y''))
   \<supseteq> ''z'' :=\<^sub>r (\<lambda>s. s ''y'')"
   sorry
-
 lemma max_cond: 
 "R\<^sub>r (\<lambda>s::int store. True) (\<lambda>s. s ''z'' = max (s ''x'') (s ''y''))
 \<supseteq> rif (\<lambda>s. s ''x'' \<ge> s ''y'')
@@ -285,7 +273,6 @@ lemma max_cond:
      else (R\<^sub>r (\<lambda>s. s ''x'' < s ''y'') (\<lambda>s. s ''z'' = max (s ''x'') (s ''y''))) 
    fi"
   sorry
-
 lemma maximum:
    "R\<^sub>r (\<lambda>s::int store. True) (\<lambda>s. s ''z'' = max (s ''x'') (s ''y''))
    \<supseteq> (rif (\<lambda>s. s ''x'' \<ge> s ''y'') 
@@ -293,7 +280,6 @@ lemma maximum:
          else (''z'' :=\<^sub>r (\<lambda>s. s ''y''))
        fi)"
   sorry
-
 
 text \<open>Integer Division\<close>
 
@@ -345,5 +331,6 @@ lemma integer_division: "R\<^sub>r (\<lambda>s::nat store. 0 < s ''y'') (\<lambd
       (''r'' :=\<^sub>r (\<lambda>s. s ''r'' - s ''y''))
   od)"
   sorry
+
 end
 

@@ -20,6 +20,9 @@ definition Ho :: "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool" where
 definition while_inv :: "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a" ("while _ inv _ do _ od" [64,64,64] 63) where
   "while p inv i do x od = while p do x od"
 
+lemma H_def_var: "Ho p x q = (\<tau> p \<cdot> x \<cdot> \<alpha> q = 0)"
+  sorry
+
 lemma H_abort: "Ho p 0 q"
   sorry
 
@@ -30,9 +33,8 @@ lemma H_cons:
   assumes "\<tau> p \<le> \<tau> p'"
   and "Ho p' x q'"
   and "\<tau> q' \<le> \<tau> q"
-  shows "Ho p x q"
+shows "Ho p x q"
   sorry
-
 
 lemma H_seq: 
   assumes "Ho r y q"
@@ -47,30 +49,7 @@ lemma H_cond:
   sorry
 
 lemma H_cond_iff: "Ho p (if r then x else y fi) q = (Ho (\<tau> p \<cdot> \<tau> r) x q \<and> Ho (\<tau> p \<cdot> \<alpha> r) y q)"
-proof
-  assume h: "Ho p (if r then x else y fi) q"
-  hence "\<tau> p \<cdot> \<tau> r \<cdot> x  \<le> \<tau> r \<cdot> x \<cdot> \<tau> q + \<alpha> r \<cdot> y \<cdot> \<tau> q"
-    by (simp add: Ho_def add_lub distl distr cond_def mult_assoc)
-  hence "\<tau> p \<cdot> \<tau> r \<cdot> x  \<le> \<tau> r \<cdot> \<tau> r \<cdot> x \<cdot> \<tau> q + \<tau> r \<cdot> \<alpha> r \<cdot> y \<cdot> \<tau> q"
-    by (smt distl mult_assoc order_def a_comm a_idem test_def)
-  also have "\<dots> \<le> x \<cdot> \<tau> q"
-    by (metis a_de_morgan2 add_0_right add_idem annil mult_assoc pcorrect_if3 t_at_compl2 test_def)
-  finally have a: "Ho (\<tau> p \<cdot> \<tau> r) x q"
-    using Ho_def t_mult_closed test_def by simp
-  have "\<tau> p \<cdot> \<alpha> r \<cdot> y \<le> \<tau> r \<cdot> x \<cdot> \<tau> q + \<alpha> r \<cdot> y \<cdot> \<tau> q"
-    using Ho_def h add_lub distl distr cond_def mult_assoc by auto 
-  hence "\<tau> p \<cdot> \<alpha> r \<cdot> y \<le> \<alpha> r \<cdot> \<tau> r \<cdot> x \<cdot> \<tau> q + \<alpha> r \<cdot> \<alpha> r \<cdot> y \<cdot> \<tau> q"
-    by (smt a_comm a_idem distl mult_assoc order_def test_def)
-  also have "\<dots> \<le> y \<cdot> \<tau> q"
-    by (metis add_commute a_absorb2 a_idem add_0_left annil distr mult_1_left order_def test_def test_mult_comp test_one)
-  finally have "Ho (\<tau> p \<cdot> \<alpha> r) y q"
-    using Ho_def t_mult_closed test_def by auto
-  thus "Ho (\<tau> p \<cdot> \<tau> r) x q \<and> Ho (\<tau> p \<cdot> \<alpha> r) y q"
-    using a by blast
-next
-  show  "Ho (\<tau> p \<cdot> \<tau> r) x q \<and> Ho (\<tau> p \<cdot> \<alpha> r) y q \<Longrightarrow> Ho p (if r then x else y fi) q"
-    by (simp add: H_cond)
-qed
+  sorry
 
 lemma H_while: 
   assumes "Ho (\<tau> p \<cdot> \<tau> r) x p"
@@ -82,14 +61,26 @@ lemma H_inv:
   and "Ho i x i" 
   and "\<tau> i \<le> \<tau> q" 
   shows "Ho p x q"
-  using H_cons assms by blast
+  sorry
+
+lemma H_inv_seq:
+  assumes "Ho i x i"
+  and "Ho j x j"
+  shows "Ho (\<tau> i \<cdot> \<tau> j) x (\<tau> i \<cdot> \<tau> j)"
+  sorry
+
+lemma H_inv_add:
+  assumes "Ho i x i"
+  and "Ho j x j"
+shows "Ho (\<tau> i + \<tau> j) x (\<tau> i + \<tau> j)"
+  sorry
 
 lemma H_while_inv: 
   assumes "\<tau> p \<le> \<tau> i"
   and "\<tau> i \<cdot> \<alpha> r \<le> \<tau> q"
   and "Ho (\<tau> i \<cdot> \<tau> r) x i"
 shows "Ho p (while r inv i do x od) q" 
-  by (unfold while_inv_def, metis H_cons H_while assms t_mult_closed test_def)
+  sorry
 
 end
 
@@ -114,7 +105,7 @@ lemma rH_unfold: "H\<^sub>r P R Q = (\<forall>x y. P x \<longrightarrow> (x,y) \
   unfolding p2r_def rel_kat.Ho_def rel_kat.test_def rel_atest_def by force
  
 lemma rH_skip: "H\<^sub>r P Id Q = (\<forall>x. P x \<longrightarrow> Q x)"
-  unfolding rH_unfold by simp
+  by (simp add: rH_unfold)
 
 lemma rH_cons1: 
   assumes  "H\<^sub>r P' R Q"
@@ -132,7 +123,7 @@ lemma rH_cons:
   assumes "H\<^sub>r P' R Q'"
   and "\<forall>x. P x \<longrightarrow> P' x"
   and "\<forall>x. Q' x \<longrightarrow> Q x"
-  shows "H\<^sub>r P R Q"
+ shows "H\<^sub>r P R Q"
   sorry
 
 lemma rH_cond [simp]: "(H\<^sub>r P (rif T then R else S fi) Q) = (H\<^sub>r (\<lambda>s. P s \<and> T s) R Q \<and> H\<^sub>r (\<lambda> s. P s \<and> \<not> T s) S Q)"
@@ -204,6 +195,7 @@ lemma sH_while:
   assumes "H\<^sub>s (\<lambda>s. P s \<and> T s) f P"
   shows "H\<^sub>s P (swhile T do f od) (\<lambda>s. P s \<and> \<not> T s)"
   sorry
+
 
 text \<open>We have taken care that the verification condition generation for relations and state transformers is the same.\<close>
 
