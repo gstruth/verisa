@@ -39,7 +39,7 @@ begin
 subclass order 
   sorry
 
-lemma zero_least: "0 \<le> x"
+lemma zero_least: "\<forall>x. 0 \<le> x"
   sorry
 
 lemma add_isor: "x \<le> y \<Longrightarrow> x + z \<le> y + z" 
@@ -52,7 +52,7 @@ proof-
   also have "\<dots> = y + z"
     by (simp add: a)
   finally have "x + z + y + z = y + z".
-  thus "x + z \<le> y + z"
+  thus ?thesis
     by (simp add: add_assoc order_def)
 qed
 
@@ -72,7 +72,7 @@ lemma add_least: "x \<le> z \<Longrightarrow> y \<le> z \<Longrightarrow> x + y 
   sorry
 
 lemma add_lub: "(x + y \<le> z) = (x \<le> z \<and> y \<le> z)"
-  using add_least add_ubl add_ubr dual_order.trans by blast
+  sorry
 
 end
 
@@ -115,12 +115,7 @@ class kleene_algebra = dioid + star +
 begin
 
 lemma one_le_star: "1 \<le> x\<^sup>\<star>"
-proof-
-  have "1 + x \<cdot> x\<^sup>\<star> \<le> x\<^sup>\<star>"
-    by (simp add: star_unfoldl) 
-  thus "1 \<le> x\<^sup>\<star>"
-    by (simp add: add_lub)
-qed
+  sorry
 
 lemma star_unfoldlr: "x \<cdot> x\<^sup>\<star> \<le> x\<^sup>\<star>"
   sorry
@@ -172,7 +167,7 @@ qed
 lemma star_idem [simp]: "(x\<^sup>\<star>)\<^sup>\<star> = x\<^sup>\<star>" 
   sorry
 
-lemma star_unfoldl_eq [simp]: "1 + x \<cdot> x\<^sup>\<star> = x\<^sup>\<star>"  
+lemma star_unfoldl_eq [simp]: "1 + x \<cdot> x\<^sup>\<star> = x\<^sup>\<star>" 
   sorry
 
 lemma star_unfoldr_eq [simp]: "1 + x\<^sup>\<star> \<cdot> x = x\<^sup>\<star>"
@@ -261,6 +256,7 @@ lemma idem_prop: "x \<cdot> x = x \<Longrightarrow> (x \<cdot> y)\<^sup>\<star> 
 
 end
 
+
 subsection \<open>Linking Algebras with Models by Instantiation and Interpretation\<close>
 
 instantiation nat :: mult_monoid
@@ -283,7 +279,7 @@ instantiation nat :: abelian_add_monoid
 begin
 
 instance
-proof
+proof 
   fix x y z :: nat
   show "x + (y + z) = (x + y) + z"
     by simp
@@ -349,7 +345,9 @@ subsection \<open>Relational Model of Kleene algebra\<close>
 notation relcomp (infixl ";" 70)
 
 interpretation rel_d: dioid "(\<union>)" "{}" Id "(;)" "(\<subseteq>)" "(\<subset>)"
-  sorry
+  apply unfold_locales
+  by auto
+
 
 lemma power_is_relpow: "rel_d.power R i = R ^^ i"
   by (induct i) (simp_all add: relpow_commute)
@@ -393,7 +391,7 @@ definition nsta :: "'a sta" ("\<nu>") where
   "\<nu> x = {}" 
 
 definition kcomp :: "'a sta \<Rightarrow> 'a sta \<Rightarrow> 'a sta" (infixl "\<circ>\<^sub>K" 75) where
-  "(f \<circ>\<^sub>K g) x = \<Union>{g y |y. y \<in> f x}"
+  "(f \<circ>\<^sub>K g) x = (\<Union>y \<in> f x. g y)"
 
 definition kadd :: "'a sta \<Rightarrow> 'a sta \<Rightarrow> 'a sta" (infixl "+\<^sub>K" 65) where
   "(f +\<^sub>K g) x = f x \<union> g x" 

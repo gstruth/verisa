@@ -57,7 +57,7 @@ lemma t_mult_closed [simp]: "\<tau> (\<alpha> x \<cdot> \<alpha> y) = \<alpha> x
   sorry
 
 lemma t_at_compl1 [simp]: "\<tau> x + \<alpha> x = 1"
-  sorry
+   sorry
 
 lemma t_at_compl2 [simp]: "\<tau> x \<cdot> \<alpha> x = 0"
   sorry
@@ -276,6 +276,7 @@ definition rel_atest :: "'a rel \<Rightarrow> 'a rel" ("\<alpha>\<^sub>r") where
   "\<alpha>\<^sub>r R = Id \<inter> -R"  
 
 interpretation rel_kat: kat "(\<union>)" "{}" Id "(;)" "(\<subseteq>)" "(\<subset>)" rtrancl "\<alpha>\<^sub>r" 
+  apply unfold_locales
   by unfold_locales (auto simp: rel_atest_def)
 
 definition sta_atest :: "'a sta \<Rightarrow> 'a sta" ("\<alpha>\<^sub>s") where
